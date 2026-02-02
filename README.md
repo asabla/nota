@@ -36,6 +36,68 @@ nota serve
 nota install
 ```
 
+## Example Output (Mock)
+
+The examples and screenshots below use mock data (no local transcripts).
+
+### `nota extract`
+
+```text
+$ nota extract
+TOOL        SESSION ID        MESSAGES  TOKENS (IN/OUT)   START TIME         DIRECTORY
+----        ----------        --------  ---------------   ----------         ---------
+claude-code a3f8c2d1-9e4b...  18        12450/8234        2026-02-01 14:23   /Users/dev/projects/my-webapp
+opencode    b7e9f3a2-1c5d...  11        8120/4892         2026-02-01 09:18   /Users/dev/projects/my-webapp
+codex       c4d2e8f1-7a3b...  25        15230/9845        2026-01-31 16:40   /Users/dev/projects/my-webapp
+
+Total: 3 sessions
+```
+
+### `nota post-commit --dry-run`
+
+```text
+$ nota post-commit --dry-run
+Would add note to commit e2b0d77:
+  Tool: claude-code
+  Session: a3f8c2d1-9e4b-4f2a-8c7d-1234567890ab
+  Tokens: 12450 in / 8234 out
+  Match score: 0.94
+```
+
+### `nota notes list`
+
+```text
+$ nota notes list
+COMMIT    TOOL        SESSION           TOKENS (IN/OUT)  SCORE  TIMESTAMP
+------    ----        -------           ---------------  -----  ---------
+e2b0d77   claude-code  a3f8c2d1-9e4b...  12450/8234       0.94   2026-02-01 14:28
+ea510bb   opencode     b7e9f3a2-1c5d...  8120/4892        0.87   2026-02-01 10:02
+0f4c782   codex        c4d2e8f1-7a3b...  15230/9845       0.91   2026-01-31 18:11
+
+Total: 3 notes
+```
+
+### `nota serve`
+
+```text
+$ nota serve
+Starting nota viewer at http://localhost:8080
+```
+
+## Web Viewer
+
+Start the viewer with `nota serve` and open `http://localhost:8080`.
+
+Screenshots (mock data generated from `docs/screenshots/mock-viewer*.html`):
+
+![Timeline](docs/screenshots/web-viewer-timeline-collapsed.png)
+
+![Expanded Transcript](docs/screenshots/web-viewer-transcript-expanded.png)
+
+![Search](docs/screenshots/web-viewer-search.png)
+
+![Mobile](docs/screenshots/web-viewer-mobile.png)
+
 ## Commands
 
 ### `nota extract`
@@ -45,7 +107,7 @@ Extract AI transcripts without modifying the repository.
 ```bash
 nota extract              # Sessions for current repo
 nota extract --all        # All sessions across all repos
-nota extract --tool claude # Only Claude Code sessions
+nota extract --tool claude-code # Only Claude Code sessions
 nota extract --output json # JSON output
 ```
 

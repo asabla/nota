@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nota - AI Transcript Viewer (Mock)</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border-color: #30363d;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-orange: #d29922;
+            --accent-purple: #a371f7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 .logo { font-size: 28px; }
+
+        .repo-path {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-family: monospace;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            margin: 20px 0;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 600; color: var(--accent-blue); }
+        .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; }
+
+        .search-bar { margin-bottom: 20px; }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+        .search-bar input::placeholder { color: var(--text-muted); }
+
+        .timeline { position: relative; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .log-entry {
+            position: relative;
+            margin-left: 50px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .log-entry::before {
+            content: '';
+            position: absolute;
+            left: -38px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+        }
+        .log-entry.has-note::before {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .commit-info { flex: 1; }
+        .commit-sha { font-family: monospace; font-size: 13px; color: var(--accent-blue); text-decoration: none; }
+        .commit-subject { font-size: 16px; font-weight: 600; margin: 4px 0; }
+        .commit-time { font-size: 12px; color: var(--text-muted); }
+
+        .tool-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 12px;
+            color: white;
+        }
+        .tool-badge.claude { background-color: #D97706; }
+        .tool-badge.opencode { background-color: #059669; }
+        .tool-badge.codex { background-color: #7C3AED; }
+
+        .entry-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .meta-item { display: flex; align-items: center; gap: 4px; }
+        .token-count { font-family: monospace; }
+
+        .files-changed { margin-top: 8px; }
+        .files-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .file-badge {
+            font-family: monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        .view-transcript-btn {
+            margin-top: 12px;
+            padding: 6px 12px;
+            font-size: 13px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="logo">&#128221;</span> nota</h1>
+            <div class="repo-path">/Users/dev/projects/my-webapp</div>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat"><div class="stat-value">47</div><div class="stat-label">Commits Tracked</div></div>
+            <div class="stat"><div class="stat-value">284,521</div><div class="stat-label">Input Tokens</div></div>
+            <div class="stat"><div class="stat-value">156,892</div><div class="stat-label">Output Tokens</div></div>
+            <div class="stat"><div class="stat-value">441,413</div><div class="stat-label">Total Tokens</div></div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search commits, sessions, tools...">
+        </div>
+
+        <div class="timeline">
+            <div class="log-entry has-note">
+                <div class="entry-header">
+                    <div class="commit-info">
+                        <a href="#" class="commit-sha">e2b0d77</a>
+                        <div class="commit-subject">feat: add user authentication with JWT</div>
+                        <div class="commit-time">2 hours ago</div>
+                    </div>
+                    <span class="tool-badge claude">claude-code</span>
+                </div>
+                <div class="entry-meta">
+                    <div class="meta-item"><span>Session:</span> <span class="token-count">a3f8c2d1-9e4b...</span></div>
+                    <div class="meta-item"><span>Tokens:</span> <span class="token-count">12,450 in / 8,234 out</span></div>
+                    <div class="meta-item"><span>Model:</span> <span>claude-sonnet-4-20250514</span></div>
+                    <div class="meta-item"><span>Score:</span> <span>94%</span></div>
+                </div>
+                <div class="files-changed">
+                    <span style="font-size: 12px; color: var(--text-muted);">Files changed:</span>
+                    <div class="files-list">
+                        <span class="file-badge">src/auth/jwt.ts</span>
+                        <span class="file-badge">src/middleware/auth.ts</span>
+                        <span class="file-badge">src/routes/login.ts</span>
+                        <span class="file-badge">tests/auth.test.ts</span>
+                    </div>
+                </div>
+                <button class="view-transcript-btn">View Transcript</button>
+            </div>
+
+            <div class="log-entry has-note">
+                <div class="entry-header">
+                    <div class="commit-info">
+                        <a href="#" class="commit-sha">ea510bb</a>
+                        <div class="commit-subject">fix: resolve race condition in database pool</div>
+                        <div class="commit-time">5 hours ago</div>
+                    </div>
+                    <span class="tool-badge opencode">opencode</span>
+                </div>
+                <div class="entry-meta">
+                    <div class="meta-item"><span>Session:</span> <span class="token-count">b7e9f3a2-1c5d...</span></div>
+                    <div class="meta-item"><span>Tokens:</span> <span class="token-count">8,120 in / 4,892 out</span></div>
+                    <div class="meta-item"><span>Model:</span> <span>claude-sonnet-4-20250514</span></div>
+                    <div class="meta-item"><span>Score:</span> <span>87%</span></div>
+                </div>
+                <div class="files-changed">
+                    <span style="font-size: 12px; color: var(--text-muted);">Files changed:</span>
+                    <div class="files-list">
+                        <span class="file-badge">src/db/pool.ts</span>
+                        <span class="file-badge">src/db/connection.ts</span>
+                    </div>
+                </div>
+                <button class="view-transcript-btn">View Transcript</button>
+            </div>
+
+            <div class="log-entry has-note">
+                <div class="entry-header">
+                    <div class="commit-info">
+                        <a href="#" class="commit-sha">0f4c782</a>
+                        <div class="commit-subject">refactor: extract validation logic into separate module</div>
+                        <div class="commit-time">yesterday</div>
+                    </div>
+                    <span class="tool-badge codex">codex</span>
+                </div>
+                <div class="entry-meta">
+                    <div class="meta-item"><span>Session:</span> <span class="token-count">c4d2e8f1-7a3b...</span></div>
+                    <div class="meta-item"><span>Tokens:</span> <span class="token-count">15,230 in / 9,845 out</span></div>
+                    <div class="meta-item"><span>Model:</span> <span>o3-mini</span></div>
+                    <div class="meta-item"><span>Score:</span> <span>91%</span></div>
+                </div>
+                <div class="files-changed">
+                    <span style="font-size: 12px; color: var(--text-muted);">Files changed:</span>
+                    <div class="files-list">
+                        <span class="file-badge">src/validation/index.ts</span>
+                        <span class="file-badge">src/validation/schemas.ts</span>
+                        <span class="file-badge">src/routes/users.ts</span>
+                        <span class="file-badge">src/routes/products.ts</span>
+                        <span class="file-badge">tests/validation.test.ts</span>
+                    </div>
+                </div>
+                <button class="view-transcript-btn">View Transcript</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
