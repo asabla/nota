@@ -2,7 +2,12 @@
 // AI coding assistant transcripts from various sources.
 package extractors
 
-import "github.com/emilsoderling/nota/internal/types"
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/emilsoderling/nota/internal/types"
+)
 
 // Extractor defines the interface for extracting sessions from AI assistant transcripts.
 type Extractor interface {
@@ -16,6 +21,12 @@ type Extractor interface {
 	// ExtractAll finds and parses all sessions from the default storage location,
 	// regardless of repository association.
 	ExtractAll() ([]types.Session, error)
+}
+
+// SessionInfo pairs a session with the extractor that found it.
+type SessionInfo struct {
+	Session   types.Session `json:"session"`
+	Extractor string        `json:"extractor"`
 }
 
 // Registry holds registered extractors for discovery and iteration.
@@ -54,4 +65,36 @@ func (r *Registry) ExtractAll(repoPath string) ([]types.Session, error) {
 	}
 
 	return allSessions, nil
+}
+
+// DefaultRegistry returns a registry with all built-in extractors.
+func DefaultRegistry() *Registry {
+	r := NewRegistry()
+	r.Register(NewClaudeExtractor())
+	r.Register(NewOpenCodeExtractor())
+	r.Register(NewCodexExtractor())
+	return r
+}
+
+// getHomeDir returns the user's home directory, with fallback for different platforms.
+func getHomeDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		// Fallback for edge cases
+		if h := os.Getenv("HOME"); h != "" {
+			return h
+		}
+		if h := os.Getenv("USERPROFILE"); h != "" {
+			return h
+		}
+	}
+	return home
+}
+
+// expandPath expands ~ to the user's home directory.
+func expandPath(path string) string {
+	if len(path) > 0 && path[0] == '~' {
+		return filepath.Join(getHomeDir(), path[1:])
+	}
+	return path
 }
