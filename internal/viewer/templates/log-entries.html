@@ -1,0 +1,64 @@
+{{define "log-entries.html"}}
+{{range $i, $entry := .Entries}}
+<div class="log-entry {{if $entry.HasNote}}has-note{{end}}"
+     {{if eq $i (add (len $.Entries) -1)}}
+     hx-get="/logs?after={{$entry.CommitSHA}}"
+     hx-trigger="revealed"
+     hx-swap="afterend"
+     {{end}}>
+    <div class="entry-header">
+        <div class="commit-info">
+            <a href="#" class="commit-sha">{{$entry.CommitShort}}</a>
+            <div class="commit-subject">{{$entry.Subject}}</div>
+            <div class="commit-time">{{timeAgo $entry.CommitTime}}</div>
+        </div>
+        <span class="tool-badge" style="background-color: {{toolColor $entry.Tool}}">
+            {{$entry.Tool}}
+        </span>
+    </div>
+    
+    <div class="entry-meta">
+        <div class="meta-item">
+            <span>Session:</span>
+            <span class="token-count">{{$entry.SessionShort}}...</span>
+        </div>
+        <div class="meta-item">
+            <span>Tokens:</span>
+            <span class="token-count">{{$entry.InputTokens}} in / {{$entry.OutputTokens}} out</span>
+        </div>
+        {{if $entry.Model}}
+        <div class="meta-item">
+            <span>Model:</span>
+            <span>{{$entry.Model}}</span>
+        </div>
+        {{end}}
+        <div class="meta-item">
+            <span>Score:</span>
+            <span>{{printf "%.0f" (mul $entry.MatchScore 100)}}%</span>
+        </div>
+    </div>
+    
+    {{if $entry.FilesChanged}}
+    <div class="files-changed">
+        <span style="font-size: 12px; color: var(--text-muted);">Files changed:</span>
+        <div class="files-list">
+            {{range $entry.FilesChanged}}
+            <span class="file-badge">{{.}}</span>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+    
+    <button class="view-transcript-btn"
+            hx-get="/transcript/{{$entry.SessionID}}"
+            hx-target="#transcript-{{$entry.CommitShort}}"
+            hx-swap="innerHTML"
+            hx-indicator="#loading-{{$entry.CommitShort}}">
+        View Transcript
+        <span id="loading-{{$entry.CommitShort}}" class="htmx-indicator">...</span>
+    </button>
+    
+    <div id="transcript-{{$entry.CommitShort}}" class="transcript-container"></div>
+</div>
+{{end}}
+{{end}}

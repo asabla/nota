@@ -1,0 +1,18 @@
+{{define "stats.html"}}
+<div class="stat">
+    <div class="stat-value">{{.TotalCommits}}</div>
+    <div class="stat-label">Commits Tracked</div>
+</div>
+<div class="stat">
+    <div class="stat-value">{{.TotalInput}}</div>
+    <div class="stat-label">Input Tokens</div>
+</div>
+<div class="stat">
+    <div class="stat-value">{{.TotalOutput}}</div>
+    <div class="stat-label">Output Tokens</div>
+</div>
+<div class="stat">
+    <div class="stat-value">{{.TotalTokens}}</div>
+    <div class="stat-label">Total Tokens</div>
+</div>
+{{end}}
