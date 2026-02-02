@@ -12,7 +12,16 @@ var (
 	// Used for flags
 	repoPath string
 	verbose  bool
+
+	// Version is set at build time
+	version = "dev"
 )
+
+// SetVersion sets the version string (called from main).
+func SetVersion(v string) {
+	version = v
+	rootCmd.Version = v
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -37,4 +46,8 @@ func init() {
 	// Global flags
 	rootCmd.PersistentFlags().StringVarP(&repoPath, "repo", "r", "", "repository path (defaults to current directory)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+
+	// Version flag
+	rootCmd.Version = version
+	rootCmd.SetVersionTemplate("nota version {{.Version}}\n")
 }
